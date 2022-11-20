@@ -1,0 +1,6 @@
+[
+{
+  "directory": "/home/sharpcdf/Projects/testing",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-Ideps/include", "-o", "build/.objs/test/linux/x86_64/release/main.cpp.o", "main.cpp"],
+  "file": "main.cpp"
+}]

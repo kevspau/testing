@@ -1,0 +1,72 @@
+#ifdef BX_PLATFORM_LINUX
+    #define GLFW_EXPOSE_NATIVE_X11
+#elif BX_PLATFORM_WINDOWS
+    #define GLFW_EXPOSE_NATIVE_WIN32
+#elif BX_PLATFORM_OSX
+    #define GLFW_EXPOSE_NATIVE_COCOA
+#endif
+#define WIDTH 1600
+#define HEIGHT 900
+
+#include <iostream>
+#include "BGFX/bgfx.h"
+#include "GLFW/glfw3native.h"
+#include "GLFW/glfw3.h"
+
+int main() {
+    int width, height;
+    if (!glfwInit()) {
+        std::cout << "Error loading GLFW\n";
+        return 1;
+    }
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Hellope, worl!", glfwGetPrimaryMonitor(), NULL);
+    if (!window) {
+        std::cout << "Error starting window\n";
+        glfwTerminate();
+        return 1;
+    }
+
+    bgfx::Init init;
+    #if BX_PLATFORM_LINUX
+        init.platformData.ndt = glfwGetX11Display();
+        init.platformData.nwh = glfwGetX11Window();
+    #elif BX_PLATFORM_WINDOWS
+        init.platformData.nwh = glfwGetWin32Window();
+    #elif BX_PLATFORM_OSX
+        init.platformData.nwh = glfwGetCocoaWindow();
+    #endif
+    glfwGetWindowSize(window, &width, &height);
+    init.resolution.width = width;
+    init.resolution.height = height;
+    init.resolution.reset = BGFX_RESET_VSYNC;
+
+    if (!bgfx::init(init)) {
+        std::cout << "Failed to initialise BGFX\n";
+        glfwTerminate();
+        return 1;
+    }
+    bgfx::ViewId mView = 0;
+    bgfx::setViewClear(mView, BGFX_CLEAR_COLOR);
+    bgfx::setViewRect(mView, 0, 0, bgfx::BackbufferRatio::Enum::Equal);
+    
+    std::cout << "Hellope, worl!\n";
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+        int oldWidth = width;
+        int oldHeight = height;
+        glfwGetWindowSize(window, &width, &height);
+        if (width != oldWidth || height != oldHeight) {
+            bgfx::reset(width, height, BGFX_RESET_VSYNC);
+            bgfx::setViewRect(mView, 0, 0, bgfx::BackbufferRatio::Enum::Equal);
+        }
+        bgfx::touch(mView);
+        bgfx::dbgTextClear();
+        bgfx::dbgTextPrintf(0, 0, 0x0f, "Hellope, worl!");
+        bgfx::frame();
+    }
+    bgfx::shutdown();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
+}
