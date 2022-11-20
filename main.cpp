@@ -60,7 +60,7 @@ int main() {
             bgfx::reset(width, height, BGFX_RESET_VSYNC);
             bgfx::setViewRect(mView, 0, 0, width, height);
         }
-        bgfx::touch(mView);
+        //bgfx::touch(mView);
         bgfx::frame();
     }
     bgfx::shutdown();
